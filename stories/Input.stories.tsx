@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, userEvent, within } from "storybook/test"
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -83,6 +84,67 @@ export const Playground: Story = {
       </div>
     ),
   ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole("textbox")
+
+    await expect(input).toBeVisible()
+    await userEvent.click(input)
+    await expect(input).toHaveFocus()
+    await userEvent.type(input, "Hello world")
+    await expect(input).toHaveValue("Hello world")
+    await userEvent.clear(input)
+    await expect(input).toHaveValue("")
+  },
+}
+
+export const TypeAndClear: Story = {
+  name: "Type and clear",
+  args: { placeholder: "Start typing…" },
+  decorators: [
+    (Story) => <div className="w-72"><Story /></div>,
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole("textbox")
+
+    await userEvent.type(input, "design system")
+    await expect(input).toHaveValue("design system")
+    await userEvent.tripleClick(input)
+    await userEvent.keyboard("{Backspace}")
+    await expect(input).toHaveValue("")
+  },
+}
+
+export const DisabledCannotType: Story = {
+  name: "Disabled — cannot type",
+  args: { disabled: true, placeholder: "Disabled" },
+  decorators: [
+    (Story) => <div className="w-72"><Story /></div>,
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole("textbox")
+
+    await expect(input).toBeDisabled()
+    await userEvent.type(input, "should not appear", { skipClick: true })
+    await expect(input).toHaveValue("")
+  },
+}
+
+export const TabFocus: Story = {
+  name: "Tab — focus receives ring",
+  args: { placeholder: "Tab to me" },
+  decorators: [
+    (Story) => <div className="w-72"><Story /></div>,
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole("textbox")
+
+    await userEvent.tab()
+    await expect(input).toHaveFocus()
+  },
 }
 
 /* ------------------------------------------------------------------ */

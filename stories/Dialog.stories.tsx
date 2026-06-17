@@ -1,6 +1,7 @@
 "use client"
 
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, screen, userEvent, waitFor, within } from "storybook/test"
 
 import {
   Dialog,
@@ -76,6 +77,32 @@ export const FormDialog: Story = {
       </DialogContent>
     </Dialog>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // Dialog starts closed
+    await expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+
+    // Open via trigger
+    const trigger = canvas.getByRole("button", { name: /edit profile/i })
+    await userEvent.click(trigger)
+
+    // Dialog renders in a portal — use screen (whole document) to find it
+    const dialog = await screen.findByRole("dialog")
+    await expect(dialog).toHaveAttribute("data-open")
+    await expect(within(dialog).getByText("Edit profile")).toBeInTheDocument()
+
+    // Name input has value
+    const nameInput = within(dialog).getByLabelText("Name")
+    await expect(nameInput).toHaveValue("Jane Smith")
+
+    // Cancel closes dialog — wait for exit animation to finish
+    const cancel = within(dialog).getByRole("button", { name: /cancel/i })
+    await userEvent.click(cancel)
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    )
+  },
 }
 
 /* ------------------------------------------------------------------ */

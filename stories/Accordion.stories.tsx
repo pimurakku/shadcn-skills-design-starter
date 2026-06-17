@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, userEvent, within } from "storybook/test"
 
 import {
   Accordion,
@@ -95,6 +96,62 @@ export const Playground: Story = {
       ))}
     </Accordion>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const [first, second] = canvas.getAllByRole("button")
+
+    // Initially all collapsed
+    await expect(first).toHaveAttribute("aria-expanded", "false")
+
+    // Click first — opens
+    await userEvent.click(first)
+    await expect(first).toHaveAttribute("aria-expanded", "true")
+
+    // Click second — single mode: first closes, second opens
+    await userEvent.click(second)
+    await expect(second).toHaveAttribute("aria-expanded", "true")
+    await expect(first).toHaveAttribute("aria-expanded", "false")
+
+    // Click second again — closes
+    await userEvent.click(second)
+    await expect(second).toHaveAttribute("aria-expanded", "false")
+  },
+}
+
+export const KeyboardNavigation: Story = {
+  name: "Keyboard navigation",
+  parameters: {
+    docs: { description: { story: "Arrow keys move focus between triggers. Space/Enter toggles." } },
+  },
+  render: () => (
+    <Accordion>
+      {ITEMS.map(({ value, question, answer }) => (
+        <AccordionItem key={value} value={value}>
+          <AccordionTrigger>{question}</AccordionTrigger>
+          <AccordionContent>{answer}</AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const [first] = canvas.getAllByRole("button")
+
+    first.focus()
+    await expect(first).toHaveFocus()
+
+    // Space to open
+    await userEvent.keyboard(" ")
+    await expect(first).toHaveAttribute("aria-expanded", "true")
+
+    // Arrow down to next trigger
+    await userEvent.keyboard("{ArrowDown}")
+
+    // Enter to open second
+    await userEvent.keyboard("{Enter}")
+    const [, second] = canvas.getAllByRole("button")
+    await expect(second).toHaveAttribute("aria-expanded", "true")
+  },
 }
 
 /* ------------------------------------------------------------------ */

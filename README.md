@@ -2,12 +2,14 @@
 
 # shadcn-skills-design-starter
 
-**A Next.js starter that bridges Figma design and code through 1,804 design tokens — with a Claude Code skill kit (18 skills) and a built-in component documentation site.**
+**A Next.js starter that bridges Figma design and code through 1,804 design tokens — with a Claude Code skill kit (18 skills), a live documentation site, and a Storybook QA workbench.**
 
-[![Next.js 16](https://img.shields.io/badge/Next.js-16-000?style=flat-square&logo=nextdotjs)](https://nextjs.org)
-[![React 19](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://react.dev)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.2-000?style=flat-square&logo=nextdotjs)](https://nextjs.org)
+[![React 19](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react)](https://react.dev)
 [![Tailwind v4](https://img.shields.io/badge/Tailwind-v4-38BDF8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
 [![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-latest-000?style=flat-square)](https://ui.shadcn.com)
+[![Storybook 10](https://img.shields.io/badge/Storybook-10.4-FF4785?style=flat-square&logo=storybook)](https://storybook.js.org)
+[![Vitest 4](https://img.shields.io/badge/Vitest-4.1-6E9F18?style=flat-square&logo=vitest)](https://vitest.dev)
 [![Claude Skills](https://img.shields.io/badge/Claude_Code-18_skills-D97706?style=flat-square)](#claude-code-skill-catalog)
 [![Design Tokens](https://img.shields.io/badge/Figma_tokens-1%2C804-A855F7?style=flat-square&logo=figma)](#design-token-system)
 
@@ -35,16 +37,19 @@
                           Tailwind utilities + components
                           (bg-primary, text-foreground, ...)
                                      │
-                                     ▼
-                          Next.js Docs Site at /docs
-                          (live previews + props tables)
+                       ┌─────────────┴─────────────┐
+                       ▼                           ▼
+              Next.js Docs Site             Storybook Workbench
+                  at /docs                    at :6006
+            (designers + consumers)        (devs + QA + interaction tests)
 ```
 
-**This repo is three things in one:**
+**This repo is four things in one:**
 
 1. **A Next.js application** — with a built-in component documentation site at `/docs`
-2. **A Claude Code skill kit** — 18 skills covering design tokens, component design, accessibility, Figma sync, and more
-3. **A design token bridge** — 1,804 Figma variables → CSS custom properties → Tailwind utilities, with zero drift
+2. **A Storybook workbench** — 50 stories + 12 interaction tests (`play` functions) running in headless Chromium via Vitest
+3. **A Claude Code skill kit** — 18 skills covering design tokens, components, accessibility, Figma sync, and more
+4. **A design token bridge** — 1,804 Figma variables → CSS custom properties → Tailwind utilities, with zero drift
 
 ---
 
@@ -54,14 +59,16 @@
 # 1. Install
 npm install
 
-# 2. Configure Figma access (optional, for MCP)
+# 2. Configure Figma access (optional — only for MCP / REST API)
 echo "FIGMA_API_KEY=figd_…" > .env.local
 
-# 3. Start dev server
-npm run dev
+# 3. Pick your surface
+npm run dev                 # Next.js + docs site → http://localhost:3000
+npm run storybook           # Storybook workbench → http://localhost:6006
+npm run test:storybook:ci   # Run 50 interaction tests headlessly
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — it redirects to `/docs` with the live component library.
+Open [http://localhost:3000](http://localhost:3000) — root redirects to `/docs` with the live component library.
 
 ---
 
@@ -69,7 +76,7 @@ Open [http://localhost:3000](http://localhost:3000) — it redirects to `/docs` 
 
 | Layer | Tech | Notes |
 |---|---|---|
-| Framework | **Next.js 16** | App Router, Turbopack |
+| Framework | **Next.js 16.2** | App Router, Turbopack |
 | Language | **TypeScript 5** | Strict mode |
 | Styling | **Tailwind CSS v4** | `@theme inline`, no `tailwind.config.js` |
 | Components | **shadcn/ui** | Installed via CLI, never hand-written |
@@ -79,6 +86,9 @@ Open [http://localhost:3000](http://localhost:3000) — it redirects to `/docs` 
 | Notifications | **Sonner** | Toast layer |
 | Icons | **lucide-react** | inline SVG with `currentColor` |
 | Fonts | **Inter + Geist Mono** | via `next/font` |
+| **Workbench** | **Storybook 10.4 (`@storybook/nextjs-vite`)** | Vite-based, fast HMR |
+| **Test runner** | **Vitest 4.1 + `@storybook/addon-vitest`** | Browser-mode interaction tests |
+| **Browser provider** | **`@vitest/browser-playwright`** | Headless Chromium |
 | Design bridge | **Figma MCP + REST API** | Bidirectional sync |
 | Color space | hex (CSS vars) · OKLCH (custom) | Hex preserves Figma exports |
 
@@ -105,14 +115,16 @@ create-skill-design/
 │   │       ├── layout.tsx     ← sidebar + header + theme toggle
 │   │       ├── page.tsx       ← introduction
 │   │       ├── installation/  · theming/
-│   │       ├── components/    ← Button, Badge, Separator docs
-│   │       └── tokens/        ← Semantic (35), Tailwind (244), Radix (396) docs
+│   │       ├── components/    ← 7 component docs (Button, Badge, Separator,
+│   │       │                    Accordion, Dialog, Input, Label)
+│   │       └── tokens/        ← Semantic (35) · Tailwind (244) · Radix (396)
 │   │
 │   ├── components/
 │   │   ├── ui/                ← shadcn primitives — never edit
-│   │   │   ├── button.tsx     ← from Figma node 402:654 (6 variants + loading)
-│   │   │   ├── badge.tsx  · separator.tsx  · accordion.tsx
-│   │   ├── docs/              ← docs UI (Sidebar, Preview, PropsTable, ColorSwatch)
+│   │   │   ├── accordion.tsx  · badge.tsx  · button.tsx  · dialog.tsx
+│   │   │   ├── input.tsx  · label.tsx  · separator.tsx
+│   │   ├── docs/              ← docs UI (Sidebar, Preview, PropsTable, ColorSwatch,
+│   │   │                        TokenMapTable, DoDont)
 │   │   ├── demo/              ← component demos
 │   │   ├── theme-provider.tsx ← next-themes wrapper
 │   │   ├── theme-toggle.tsx   ← dark/light toggle
@@ -122,6 +134,21 @@ create-skill-design/
 │   ├── lib/utils.ts           ← cn() helper
 │   ├── lib/tokens/colors.ts   ← 1,804 Figma color tokens (auto-generated)
 │   └── public/
+│
+├─ Storybook workbench
+│   ├── .storybook/
+│   │   ├── main.ts            ← framework: nextjs-vite + Tailwind v4 viteFinal
+│   │   ├── preview.ts         ← imports globals.css + dark mode decorator
+│   │   └── vitest-setup.ts    ← project annotations for Vitest browser tests
+│   ├── stories/
+│   │   ├── Introduction.mdx   ← Storybook home page (QA workflow guide)
+│   │   ├── Accordion.stories.tsx   · Badge.stories.tsx
+│   │   ├── Button.stories.tsx      · Dialog.stories.tsx
+│   │   ├── Input.stories.tsx       · Label.stories.tsx
+│   │   ├── Separator.stories.tsx
+│   │   └── tokens/
+│   │       └── SemanticColors.stories.tsx   ← 35 semantic tokens grouped × dark mode
+│   └── vitest.config.ts       ← Vitest browser mode + playwright provider
 │
 ├─ Scripts (root, mixed project + ux-ui-kit)
 │   ├── validate-tokens.py     ← verify Figma export = 1,804 vars
@@ -145,17 +172,12 @@ create-skill-design/
     │   │   ├── SKILL.md       ← Next.js + shadcn-specific rules
     │   │   ├── references/DESIGN.md   ← 1,804 token reference (16 collections)
     │   │   └── scripts/validate-tokens.py
-    │   ├── design-code/       ← generate code for ANY framework
-    │   ├── design-tokens/     ← author/audit DTCG tokens
-    │   ├── figma-integration/ · image-to-code/ · design-component/
-    │   ├── apply-aesthetic/   ← apply visual archetype
-    │   ├── a11y-audit/        ← WCAG 2.2 AA/AAA
-    │   ├── design-qa/         ← CI gates · lint · axe · contrast
-    │   ├── design-review/     ← Nielsen 10 heuristics
-    │   ├── token-build/       ← pipeline: tokens → platform artifacts
-    │   ├── performance/       ← Core Web Vitals (LCP/INP/CLS)
-    │   ├── brandkit/  · prototype/  · redesign/  · ux-writing/
-    │   ├── migrate-design-system/  · governance/
+    │   ├── design-code/       · design-tokens/      · figma-integration/
+    │   ├── image-to-code/     · design-component/   · apply-aesthetic/
+    │   ├── a11y-audit/        · design-qa/          · design-review/
+    │   ├── token-build/       · performance/        · brandkit/
+    │   ├── prototype/         · redesign/           · ux-writing/
+    │   ├── migrate-design-system/   · governance/
     │
     └── Reference material (read-only, consumed by skills above)
         ├── tokens/            ← 13 DTCG JSON files (colors, type, motion…)
@@ -204,9 +226,29 @@ Exit `0` = all 1,804 vars match DESIGN.md · Exit `1` = drift detected.
 
 ---
 
-## Component Documentation Site
+## Component Library
 
-The repo ships with a **live component library** at `/docs`:
+**7 components shipped**, each with: shadcn primitive · Next.js docs page · Storybook stories (with rich controls + interaction tests).
+
+| Component | Code | Docs page | Stories | Play tests |
+|---|---|---|---|---|
+| Accordion | `components/ui/accordion.tsx` | `/docs/components/accordion` | `stories/Accordion.stories.tsx` | ✓ aria-expanded toggle, keyboard nav |
+| Badge | `components/ui/badge.tsx` | `/docs/components/badge` | `stories/Badge.stories.tsx` | — |
+| Button | `components/ui/button.tsx` | `/docs/components/button` | `stories/Button.stories.tsx` | ✓ click fires onClick, disabled blocks, Space/Enter activation |
+| Dialog | `components/ui/dialog.tsx` | `/docs/components/dialog` | `stories/Dialog.stories.tsx` | ✓ open/close, focus trap, ESC dismiss |
+| Input | `components/ui/input.tsx` | `/docs/components/input` | `stories/Input.stories.tsx` | ✓ type/clear, disabled blocks, Tab focus |
+| Label | `components/ui/label.tsx` | `/docs/components/label` | `stories/Label.stories.tsx` | — |
+| Separator | `components/ui/separator.tsx` | `/docs/components/separator` | `stories/Separator.stories.tsx` | — |
+
+**Total stories:** ~50 across the 7 components + 3 token stories (Semantic colors group, component tokens, dark mode comparison).
+
+---
+
+## Documentation Surfaces
+
+### 1. Next.js Docs Site (`/docs`)
+
+Designer-facing reference with live previews and copyable code.
 
 | Path | What's there |
 |---|---|
@@ -216,11 +258,109 @@ The repo ships with a **live component library** at `/docs`:
 | `/docs/tokens/semantic` | **35 semantic tokens** — full table with Figma aliases |
 | `/docs/tokens/colors` | **244 Tailwind colors** — overview grid + full palette |
 | `/docs/tokens/radix` | **396 Radix scales** — 33 scales × 12 steps × light/dark toggle |
-| `/docs/components/button` | Button: 6 variants, sizes, loading, icons, disabled, props table |
-| `/docs/components/badge` | Badge with variant matrix |
-| `/docs/components/separator` | Horizontal + vertical |
+| `/docs/components/<name>` | One page per shadcn component (7 total) — Anatomy, Props, Examples, Do/Don't, A11y, Token mapping |
 
 Every preview block has a **Preview / Code tab** with copy-to-clipboard.
+
+### 2. Storybook Workbench (`:6006`)
+
+Developer + QA-facing workbench for isolated component states.
+
+| Sidebar group | What's there |
+|---|---|
+| **Overview / Introduction** | MDX home page — QA workflow guide, sidebar map, toolbar reference |
+| **Components/Button** | Playground · Variants · Sizes · Loading · WithIcon · Disabled · **+ 3 play tests** |
+| **Components/Badge** | Playground · 8 variants · WithIcon · NumberVariants · AsLink · AllVariants matrix |
+| **Components/Input** | Playground · Types · States · Aria-invalid · **+ 3 play tests** |
+| **Components/Label** | Playground · WithIcon · PairedWithInput · DisabledPeer |
+| **Components/Separator** | Playground · Horizontal · Vertical · InContext |
+| **Components/Accordion** | Playground · Single · Multiple · DefaultOpen · **+ 1 play test** |
+| **Components/Dialog** | FormDialog (**+ play test**) · ShareLink · NoCloseButton · DestructiveConfirm |
+| **Tokens/SemanticColors** | AllTokens (35) · ComponentTokens (15 most used) · DarkModeComparison |
+
+**Built-in addons:** `addon-docs` (autogenerated API) · `addon-a11y` (axe scan) · `addon-themes` (light/dark toggle) · `addon-vitest` (test runner).
+
+---
+
+## Storybook & Interaction Testing
+
+The Storybook setup is wired for both **manual QA** and **automated interaction testing** via Vitest browser mode.
+
+### Architecture
+
+```
+.storybook/main.ts          @storybook/nextjs-vite framework
+                            + viteFinal injects @tailwindcss/vite plugin
+                            + @ → repo root alias
+
+.storybook/preview.ts       imports ../app/globals.css
+                            + withThemeByClassName decorator (Light/Dark)
+                            + nextjs.appDirectory = true
+
+.storybook/vitest-setup.ts  setProjectAnnotations from preview
+                            → makes stories runnable in Vitest
+
+vitest.config.ts            storybookTest plugin
+                            + browser: playwright() (chromium, headless)
+                            + setupFiles → vitest-setup.ts
+```
+
+### Writing a story with rich controls
+
+```tsx
+// stories/Button.stories.tsx
+import type { Meta, StoryObj } from "@storybook/react"
+import { expect, fn, userEvent, within } from "storybook/test"
+import { Button } from "@/components/ui/button"
+
+const meta = {
+  title: "Components/Button",
+  component: Button,
+  tags: ["autodocs"],
+  args: { onClick: fn() },                        // ← auto-mock callback
+  argTypes: {
+    variant: {
+      control: "select",
+      options: ["default", "outline", "ghost", "destructive", "link", "secondary"],
+      table: { category: "Appearance" },
+    },
+    size: { control: "inline-radio", options: ["sm", "default", "lg", "icon"] },
+    disabled: { control: "boolean", table: { category: "State" } },
+  },
+} satisfies Meta<typeof Button>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Playground: Story = {
+  args: { children: "Click me", variant: "default" },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole("button"))
+    await expect(args.onClick).toHaveBeenCalledOnce()
+  },
+}
+```
+
+### Running tests
+
+```bash
+npm run test:storybook         # watch mode (re-runs on change)
+npm run test:storybook:watch   # same — explicit
+npm run test:storybook:ci      # one-shot, headless, CI-friendly
+```
+
+**Current status:** 50 / 50 tests pass in ~4 s (transform 0 ms · setup 7 s · tests 1.8 s).
+
+### Notes for base-ui Dialog play tests
+
+base-ui renders dialogs **in a portal** outside `canvasElement`. Two gotchas:
+
+1. Use `screen.findByRole("dialog")` — not `canvas.findByRole(...)` — to reach the portal.
+2. Assert `data-open` attribute (not `toBeVisible()`) — animations start at `opacity: 0` in headless mode.
+3. Wrap close assertions in `waitFor(...)` — base-ui keeps the element mounted during exit animation (`data-closed=""`).
+
+Example pattern in `stories/Dialog.stories.tsx:80-104`.
 
 ---
 
@@ -291,7 +431,8 @@ Translate a Figma frame into a Next.js component with token-driven Tailwind clas
    e. Generates the React/TypeScript file
 4. Verify:
    a. Visit the docs site to preview
-   b. Run npm run lint
+   b. Open Storybook to QA in isolation
+   c. Run npm run lint
 ```
 
 **Example:** Our Button (`components/ui/button.tsx`) came from Figma node `402:654` — see `AUDIT.md → Button` for the full mapping.
@@ -324,9 +465,9 @@ When the Figma design team adds or changes variables.
    "Update references/DESIGN.md from the new variables-export.json.
     Verify exactly N variables — no more, no less."
 4. Update app/globals.css with new shadcn/ui collection values
-5. Regenerate lib/tokens/colors.ts:
-   python3 scripts/generate-color-tokens.py  (script in conversation history)
+5. Regenerate lib/tokens/colors.ts (script in conversation history)
 6. Re-run validate-tokens.py — should exit 0
+7. Open the Tokens/SemanticColors story in Storybook to visually verify
 ```
 
 ### Workflow 4 — Build a New Component
@@ -348,12 +489,33 @@ When the Figma design team adds or changes variables.
 
 5. Document it:
    a. Add page at app/docs/components/stats-card/page.tsx
-   b. Add row to AUDIT.md
-   c. Add variant matrix to VARIANTS.md
-   d. Add to components/docs/Sidebar.tsx navigation
+   b. Add a Storybook file at stories/StatsCard.stories.tsx
+      (Playground + variant matrix + at least one play test for interactivity)
+   c. Add row to AUDIT.md
+   d. Add variant matrix to VARIANTS.md
+   e. Add to components/docs/Sidebar.tsx navigation
 ```
 
-### Workflow 5 — Restyle to a Different Aesthetic
+### Workflow 5 — QA a Component (Storybook + interaction tests)
+
+```
+1. Open Storybook locally:
+   npm run storybook
+
+2. Pick the component → toggle Light / Dark via toolbar
+3. Open Controls panel — exercise every argType
+4. Open A11y panel — fix any axe violations
+5. Open Interactions panel — verify play function steps pass
+
+6. From CLI, run the full test suite headlessly:
+   npm run test:storybook:ci
+
+7. Wire into CI:
+   - name: Storybook interaction tests
+     run: npm run test:storybook:ci
+```
+
+### Workflow 6 — Restyle to a Different Aesthetic
 
 ```
 1. Prompt Claude:
@@ -364,9 +526,10 @@ When the Figma design team adds or changes variables.
    from .claude/design-systems/library/editorial/DESIGN.md
 3. Generates a token overlay (new globals.css :root values)
 4. Components automatically inherit — no component file edits needed
+5. Open Tokens/SemanticColors story — visually verify dark + light
 ```
 
-### Workflow 6 — Accessibility Audit
+### Workflow 7 — Accessibility Audit
 
 ```
 1. Prompt Claude:
@@ -378,10 +541,11 @@ When the Figma design team adds or changes variables.
    c. Runs scripts/contrast.py against the color pairs used
    d. Returns findings table with P0/P1/P2 severity
 
-3. Optionally run automated gates:
-   node scripts/axe_audit.mjs
-   node scripts/verify_focustrap.mjs
-   node scripts/verify_states.mjs --dark
+3. In parallel, run automated gates:
+   - Storybook addon-a11y panel (per story, in-browser)
+   - node scripts/axe_audit.mjs
+   - node scripts/verify_focustrap.mjs
+   - node scripts/verify_states.mjs --dark
 ```
 
 ---
@@ -432,6 +596,7 @@ When you add a component:
 1. Add a row to `AUDIT.md` (Figma node + code path + parity)
 2. Add a section to `VARIANTS.md` (variants × sizes × props)
 3. Add a `/docs/components/<name>` page
+4. Add a `stories/<Name>.stories.tsx` file (Playground + matrix + at least one play test if interactive)
 
 ---
 
@@ -443,6 +608,15 @@ npm run dev          # development server (Turbopack)
 npm run build        # production build
 npm run start        # production server
 npm run lint         # ESLint
+```
+
+### Storybook
+```bash
+npm run storybook              # dev workbench at :6006
+npm run build-storybook        # static site to storybook-static/
+npm run test:storybook         # vitest watch (browser mode)
+npm run test:storybook:watch   # same — explicit
+npm run test:storybook:ci      # headless one-shot, CI-friendly
 ```
 
 ### shadcn/ui components
@@ -490,7 +664,7 @@ Using shadcn-ui-design, implement this Figma frame as a Next.js component:
 
 ```
 Using shadcn-ui-design, create a [ComponentName] with [requirements].
-Follow SKILL.md conventions.
+Follow SKILL.md conventions. Add a Storybook story with a play test.
 ```
 
 ```
@@ -529,18 +703,25 @@ npx shadcn@latest init -d
 # 3. Core dependencies
 npm install next-themes sonner react-hook-form zod @hookform/resolvers
 
-# 4. ux-ui-kit (optional, full skill catalog)
+# 4. Storybook + Vitest browser-mode interaction tests
+npx storybook@latest init
+npm install -D @storybook/addon-a11y @storybook/addon-themes \
+               @storybook/addon-vitest @tailwindcss/vite \
+               vitest @vitest/browser @vitest/browser-playwright playwright
+
+# 5. ux-ui-kit (optional, full skill catalog)
 npx ux-ui-skills init
 
-# 5. Copy the project's skill package
+# 6. Copy the project's skill package
 mkdir -p .claude/skills
 cp -r /path/to/this/repo/.claude/skills/shadcn-ui-design .claude/skills/
 
-# 6. Set Figma access (optional)
+# 7. Set Figma access (optional)
 echo "FIGMA_API_KEY=figd_…" > .env.local
 
-# 7. Run
-npm run dev
+# 8. Run
+npm run dev          # Next.js
+npm run storybook    # Workbench
 ```
 
 ---
@@ -554,6 +735,9 @@ npm run dev
 | **AGENTS.md** | ux-ui-kit agent persona + Request Router (master instructions) |
 | **AUDIT.md** | Component audit matrix — Figma source, parity, missing variants |
 | **VARIANTS.md** | Per-component variant matrix and prop reference |
+| `.storybook/main.ts` | Storybook framework config (nextjs-vite + Tailwind v4) |
+| `vitest.config.ts` | Vitest browser-mode test config (playwright provider) |
+| `stories/Introduction.mdx` | Storybook home page — QA workflow guide |
 | `.claude/skills/shadcn-ui-design/SKILL.md` | Project's UI rules (semantic tokens, install via CLI, Tailwind v4) |
 | `.claude/skills/shadcn-ui-design/references/DESIGN.md` | 1,804-variable Figma token reference (16 sections) |
 | `.claude/skills/*/SKILL.md` | One file per ux-ui-kit skill |
@@ -568,6 +752,7 @@ MIT — see source for details.
 
 - [shadcn/ui](https://ui.shadcn.com) — component distribution model
 - [Radix UI](https://www.radix-ui.com) + [base-ui](https://base-ui.com) — primitives
+- [Storybook](https://storybook.js.org) + [Vitest](https://vitest.dev) — workbench + interaction tests
 - [ux-ui-agent-skills](https://www.npmjs.com/package/ux-ui-agent-skills) — 17 skills + 138 design system references
 - [Figma](https://figma.com) + [lazyyysync](https://www.figma.com/community/plugin/lazyyysync) — design token pipeline
 - [Anthropic Claude Code](https://claude.com/code) — the agent layer

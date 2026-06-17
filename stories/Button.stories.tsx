@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, fn, userEvent, within } from "storybook/test"
 import { ChevronRight, ExternalLink, GitBranch, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,7 @@ const meta = {
     size: "default",
     isLoading: false,
     disabled: false,
+    onClick: fn(),
   },
   argTypes: {
     variant: {
@@ -63,6 +65,44 @@ type Story = StoryObj<typeof meta>
 export const Playground: Story = {
   name: "⚡ Playground",
   args: { children: "Click me" },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole("button", { name: /click me/i })
+
+    await expect(button).toBeVisible()
+    await expect(button).not.toBeDisabled()
+    await userEvent.click(button)
+    await expect(args.onClick).toHaveBeenCalledOnce()
+  },
+}
+
+export const DisabledDoesNotFire: Story = {
+  name: "Disabled — click blocked",
+  args: { children: "Disabled", disabled: true },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole("button", { name: /disabled/i })
+
+    await expect(button).toBeDisabled()
+    await userEvent.click(button, { pointerEventsCheck: 0 })
+    await expect(args.onClick).not.toHaveBeenCalled()
+  },
+}
+
+export const KeyboardActivation: Story = {
+  name: "Keyboard — Space + Enter",
+  args: { children: "Press me" },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole("button", { name: /press me/i })
+
+    button.focus()
+    await expect(button).toHaveFocus()
+    await userEvent.keyboard(" ")
+    await expect(args.onClick).toHaveBeenCalledTimes(1)
+    await userEvent.keyboard("{Enter}")
+    await expect(args.onClick).toHaveBeenCalledTimes(2)
+  },
 }
 
 /* -------------------------------------------------------------------------- */
