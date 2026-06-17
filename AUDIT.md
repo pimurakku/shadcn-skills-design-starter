@@ -31,8 +31,10 @@ Tracks parity between **Figma** source-of-truth components and the **code** impl
 | ThemeToggle | ✅ | _N/A_ | `components/theme-toggle.tsx` | _N/A_ | Custom — Sun/Moon icons, ghost button. |
 | ThemeProvider | ✅ | _N/A_ | `components/theme-provider.tsx` | _N/A_ | next-themes wrapper. |
 | Card | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add card` |
-| Input | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add input label form` |
-| Dialog | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add dialog alert-dialog` |
+| Input | ✅ | `76:8518` | `components/ui/input.tsx` | ✅ | h-9 (36px), px-3 py-1, rounded-lg. Variants in Figma: Default, With Label, File, With Button, Disabled. All implemented via prop composition. |
+| Label | ✅ | _N/A_ | `components/ui/label.tsx` | _N/A_ | shadcn primitive — used with Input. |
+| Dialog | ✅ | `74:7828` | `components/ui/dialog.tsx` | ✅ | 2 Figma variants (Dialog + Custom_close_button). p-6, rounded-lg, shadow-lg, title text-lg font-semibold. |
+| AlertDialog | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add alert-dialog` |
 | Select | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add select` |
 | Tabs | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add tabs` |
 | Sheet | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add sheet` |
@@ -152,6 +154,101 @@ Tracks parity between **Figma** source-of-truth components and the **code** impl
 - `decorative` prop forwarded via base-ui Separator primitive
 
 No Figma divergence. Token-aligned.
+
+---
+
+### Input — `components/ui/input.tsx`
+
+**Source:** [Figma node 76:8518](https://www.figma.com/design/umeswexdAUadWQjZFimTZg/-shadcn_ui-components---Workshop?node-id=76-8518)
+**Status:** ✅ Implemented
+**Last audit:** 2026-06-17
+
+#### Figma anatomy (5 use cases)
+| Figma name | Code variant | Notes |
+|---|---|---|
+| `Default` (State=Default/Active) | `<Input type="email" />` | Border swaps `border-input` → `border-ring` on focus |
+| `File` | `<Input type="file" />` | Native file: pseudo-class styles "Choose File" button |
+| `Disabled` | `<Input disabled />` | Opacity 50%, blocked pointer events |
+| `With Label` | `<Label htmlFor> + <Input id>` | Compose via grid + gap-2 |
+| `With Button` | `<Input> + <Button>` in flex | Compose via flex + gap-2 (subscribe pattern) |
+
+#### Token mapping (Figma alias → CSS var → Tailwind)
+| Element | Figma alias | CSS var | Tailwind class |
+|---|---|---|---|
+| Background | `shadcn/ui/background` | `--background` | `bg-background` |
+| Border default | `shadcn/ui/border` | `--input` | `border-input` |
+| Border focus | `shadcn/ui/ring` | `--ring` | `focus-visible:border-ring` |
+| Placeholder | `shadcn/ui/muted-foreground` | `--muted-foreground` | `placeholder:text-muted-foreground` |
+| Error border | `shadcn/ui/destructive` | `--destructive` | `aria-invalid:border-destructive` |
+| Focus ring (50%) | `shadcn/ui/ring` | `--ring` | `focus-visible:ring-ring/50` |
+
+#### Spec parity
+| Property | Figma | Code | Match |
+|---|---|---|---|
+| Height | 36px | `h-9` | ✅ |
+| Horizontal padding | 12px | `px-3` | ✅ |
+| Vertical padding | 4px | `py-1` | ✅ |
+| Border radius | 8px | `rounded-lg` | ✅ |
+| Border width | 1px | `border` | ✅ |
+| Placeholder text size | 16px | `text-base md:text-sm` | ⚠️ Code uses 14px on md+ for compact spacing (responsive) |
+
+#### Fixes applied
+- Changed default `h-8` → `h-9` (matches Figma 36px)
+- Changed default `px-2.5 py-1` → `px-3 py-1` (matches Figma pad=4/4/12/12)
+- Changed default `bg-transparent` → `bg-background` (matches Figma fill)
+- Changed default `file:h-6` → `file:h-7` (proportional to new h-9)
+
+---
+
+### Dialog — `components/ui/dialog.tsx`
+
+**Source:** [Figma node 74:7828](https://www.figma.com/design/umeswexdAUadWQjZFimTZg/-shadcn_ui-components---Workshop?node-id=74-7828)
+**Status:** ✅ Implemented
+**Last audit:** 2026-06-17
+
+#### Figma variants (2 COMPONENT_SETs)
+| Figma name | Code pattern | Notes |
+|---|---|---|
+| `Dialog` (State=Default/Open) | `<Dialog><DialogTrigger><DialogContent>` | Trigger + open panel with form + Cancel/Save footer |
+| `Custom_close_button` (State=Default/Open) | Same root, single input + button | Share-link / copy-to-clipboard pattern |
+
+#### Sub-components
+- `Dialog` (root) · `DialogTrigger` · `DialogContent` (popup + portal + overlay)
+- `DialogHeader` · `DialogTitle` · `DialogDescription`
+- `DialogFooter` · `DialogClose`
+
+#### Token mapping (Figma alias → CSS var → Tailwind)
+| Element | Figma alias | CSS var | Tailwind class |
+|---|---|---|---|
+| Panel background | `shadcn/ui/background` | `--background` | `bg-background` |
+| Panel border | `shadcn/ui/border` | `--border` | `border border-border` |
+| Title text | `shadcn/ui/foreground` | `--foreground` | `text-foreground` |
+| Description text | `shadcn/ui/muted-foreground` | `--muted-foreground` | `text-muted-foreground` |
+| Overlay backdrop | — | — | `bg-black/30` |
+| Drop shadow | 2-stop shadow (10% opacity) | — | `shadow-lg` |
+
+#### Spec parity
+| Property | Figma | Code | Match |
+|---|---|---|---|
+| Padding | 24px | `p-6` | ✅ |
+| Border radius | 10px | `rounded-lg` (= var(--radius) = 0.625rem = 10px) | ✅ |
+| Border width | 1px | `border` | ✅ |
+| Title font size | 18px Semi Bold | `text-lg font-semibold` | ✅ |
+| Description font size | 14px Regular | `text-sm` | ✅ |
+| Header gap | 24px | `gap-6` (between header/body/footer) | ✅ |
+| Title leading | tight | `leading-none` | ✅ |
+
+#### Fixes applied (from shadcn default)
+- Changed `rounded-xl` → `rounded-lg` (matches Figma r=10px exactly via --radius)
+- Changed `p-4` → `p-6` (matches Figma 24px)
+- Changed `bg-popover` → `bg-background` (matches Figma fill alias)
+- Changed `ring-1 ring-foreground/10` → `border border-border` (matches Figma 1px stroke)
+- Added `shadow-lg` (matches Figma 2-stop drop shadow)
+- Changed `gap-4` → `gap-6` (matches Figma 24px sections)
+- Changed title `text-base font-medium font-heading` → `text-lg font-semibold` (matches Figma 18px Semi Bold)
+- Removed DialogFooter `-mx-4 -mb-4 bg-muted/50 p-4 border-t` (not in Figma — Figma footer is just right-aligned buttons)
+- Backdrop `bg-black/10` → `bg-black/30` (visible scrim per Figma)
+- Close button positioning `top-2 right-2` → `top-4 right-4` (proportional to new p-6)
 
 ---
 

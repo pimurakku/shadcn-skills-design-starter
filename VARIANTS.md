@@ -106,6 +106,76 @@ Uses `useRender` from `@base-ui/react/use-render` — pass `render={<a href="…
 
 ---
 
+## Dialog — `components/ui/dialog.tsx`
+
+**Source:** Figma node `74:7828` (2 COMPONENT_SETs: Dialog + Custom_close_button)
+
+### Sub-components
+
+| Component | Role |
+|---|---|
+| `Dialog` | Root — controls open state (`open` / `defaultOpen` / `onOpenChange`) |
+| `DialogTrigger` | Element that opens the dialog (pass `render={<Button>}` etc.) |
+| `DialogContent` | Popup with backdrop + portal; accepts `showCloseButton` (default true) |
+| `DialogHeader` | Wraps Title + Description with `gap-2` flex |
+| `DialogTitle` | Required — wires `aria-labelledby` |
+| `DialogDescription` | Optional — wires `aria-describedby` |
+| `DialogFooter` | Right-aligned button row (`sm:flex-row sm:justify-end`) |
+| `DialogClose` | Any close trigger (`render={<Button>Cancel</Button>}`) |
+
+### Sizing
+
+| Property | Value |
+|---|---|
+| Padding | `p-6` (24px) |
+| Border radius | `rounded-lg` (10px via `--radius`) |
+| Border width | `border` (1px) |
+| Default max width | `sm:max-w-md` (28rem / 448px) |
+| Shadow | `shadow-lg` |
+| Backdrop | `bg-black/30` + `backdrop-blur-xs` |
+
+### Patterns
+
+| Pattern | Notes |
+|---|---|
+| Form dialog | Header + form fields + Cancel/Save footer (matches Figma main variant) |
+| Share / copy | Header + readonly input + Copy button (matches Custom_close_button variant) |
+| Destructive confirm | Confirm button restates action ("Delete account", not "OK") per WCAG 3.3.4 |
+| No close button | `showCloseButton={false}` — Escape + backdrop still work |
+
+---
+
+## Input — `components/ui/input.tsx`
+
+**Source:** Figma node `76:8518`
+
+### Anatomy patterns (compose via props, not variants)
+
+| Pattern | Code | Notes |
+|---|---|---|
+| Default text input | `<Input type="email" placeholder="Email" />` | Border swaps on focus |
+| With label | `<Label htmlFor="x">…</Label> + <Input id="x">` | Use `grid gap-2` wrapper |
+| File | `<Input type="file" />` | `file:` pseudo-class styles button |
+| Disabled | `<Input disabled />` | Opacity 50% + tinted background |
+| With button | `<Input> + <Button>` in `flex gap-2` | Subscribe / send pattern |
+| Error | `<Input aria-invalid />` | Renders destructive border + ring |
+
+### Spec
+
+| Property | Value |
+|---|---|
+| Height | `h-9` (36px) |
+| Padding | `px-3 py-1` (12px / 4px) |
+| Border radius | `rounded-lg` (8px) |
+| Border width | `border` (1px) |
+| Font size | `text-base md:text-sm` (16px mobile / 14px md+) |
+
+### Standard HTML input types supported
+
+`text` · `email` · `password` · `number` · `search` · `tel` · `url` · `file` · `date` · `time` · `datetime-local`
+
+---
+
 ## Accordion — `components/ui/accordion.tsx`
 
 ### Sub-components

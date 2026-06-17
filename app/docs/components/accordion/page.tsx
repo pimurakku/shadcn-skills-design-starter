@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Preview } from "@/components/docs/Preview"
 import { PropsTable } from "@/components/docs/PropsTable"
 import { Separator } from "@/components/ui/separator"
+import { TokenMapTable } from "@/components/docs/TokenMapTable"
+import { DoDont } from "@/components/docs/DoDont"
 
 const accordionProps = [
   {
@@ -67,6 +69,14 @@ const faqProps = [
   },
 ]
 
+const tokenRows = [
+  { element: "Section title", figma: "shadcn/ui/foreground", cssVar: "--foreground", tailwind: "text-foreground" },
+  { element: "Chevron icon", figma: "shadcn/ui/foreground", cssVar: "--foreground", tailwind: "text-foreground" },
+  { element: "Panel content", figma: "shadcn/ui/foreground", cssVar: "--foreground", tailwind: "text-foreground" },
+  { element: "Item border", figma: "shadcn/ui/border", cssVar: "--border", tailwind: "border-b" },
+  { element: "Focus ring", figma: "shadcn/ui/ring", cssVar: "--ring", tailwind: "focus-visible:ring-ring/50" },
+]
+
 export default function AccordionPage() {
   return (
     <div className="max-w-3xl">
@@ -105,7 +115,44 @@ export default function AccordionPage() {
 
       <Separator className="mb-10" />
 
-      {/* Basic example */}
+      {/* 1. Anatomy */}
+      <section className="mb-10">
+        <h2 className="mb-3 text-base font-semibold text-foreground">Anatomy</h2>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Compose four sub-components. Each Item needs a unique{" "}
+          <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">value</code>.
+        </p>
+        <pre className="overflow-x-auto rounded-lg border border-border bg-zinc-950 p-4 text-xs leading-relaxed text-zinc-100 dark:bg-zinc-900">
+          <code>{`<Accordion>            // root container
+  <AccordionItem>      // one section (needs unique value)
+    <AccordionTrigger> // clickable header (auto-toggles aria-expanded)
+    <AccordionContent> // collapsible panel
+  </AccordionItem>
+</Accordion>`}</code>
+        </pre>
+      </section>
+
+      <Separator className="mb-10" />
+
+      {/* 2. Props / API */}
+      <section className="mb-10">
+        <h2 className="mb-4 text-base font-semibold text-foreground">Accordion (root)</h2>
+        <PropsTable props={accordionProps} />
+      </section>
+
+      <section className="mb-10">
+        <h2 className="mb-4 text-base font-semibold text-foreground">AccordionItem</h2>
+        <PropsTable props={itemProps} />
+      </section>
+
+      <section className="mb-10">
+        <h2 className="mb-4 text-base font-semibold text-foreground">FaqAccordion (composed)</h2>
+        <PropsTable props={faqProps} />
+      </section>
+
+      <Separator className="mb-10" />
+
+      {/* 3. Variants and States */}
       <section className="mb-10">
         <h2 className="mb-1 text-base font-semibold text-foreground">Basic</h2>
         <p className="mb-4 text-sm text-muted-foreground">
@@ -158,7 +205,6 @@ export default function AccordionPage() {
         </Preview>
       </section>
 
-      {/* Multiple open */}
       <section className="mb-10">
         <h2 className="mb-1 text-base font-semibold text-foreground">Multiple Open</h2>
         <p className="mb-4 text-sm text-muted-foreground">
@@ -194,7 +240,6 @@ export default function AccordionPage() {
         </Preview>
       </section>
 
-      {/* Pre-opened */}
       <section className="mb-10">
         <h2 className="mb-1 text-base font-semibold text-foreground">Default Open</h2>
         <p className="mb-4 text-sm text-muted-foreground">
@@ -230,7 +275,6 @@ export default function AccordionPage() {
         </Preview>
       </section>
 
-      {/* Disabled item */}
       <section className="mb-10">
         <h2 className="mb-1 text-base font-semibold text-foreground">Disabled Item</h2>
         <p className="mb-4 text-sm text-muted-foreground">
@@ -264,7 +308,6 @@ export default function AccordionPage() {
         </Preview>
       </section>
 
-      {/* FaqAccordion composed */}
       <section className="mb-10">
         <h2 className="mb-1 text-base font-semibold text-foreground">FaqAccordion (Composed)</h2>
         <p className="mb-4 text-sm text-muted-foreground">
@@ -309,81 +352,30 @@ const items = [
 
       <Separator className="mb-10" />
 
-      {/* Anatomy */}
+      {/* 4. Usage Do / Don't */}
       <section className="mb-10">
-        <h2 className="mb-3 text-base font-semibold text-foreground">Anatomy</h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Compose four sub-components. Each Item needs a unique{" "}
-          <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">value</code>.
-        </p>
-        <pre className="overflow-x-auto rounded-lg border border-border bg-zinc-950 p-4 text-xs leading-relaxed text-zinc-100 dark:bg-zinc-900">
-          <code>{`<Accordion>            // root container
-  <AccordionItem>      // one section (needs unique value)
-    <AccordionTrigger> // clickable header (auto-toggles aria-expanded)
-    <AccordionContent> // collapsible panel
-  </AccordionItem>
-</Accordion>`}</code>
-        </pre>
+        <h2 className="mb-3 text-base font-semibold text-foreground">Usage Do / Don&rsquo;t</h2>
+        <DoDont
+          do={[
+            "Use Accordion to progressively disclose long secondary content (FAQs, settings groups, advanced options).",
+            "Use single-open mode (default) for related sections where one focus area at a time is the rule.",
+            "Pass multiple for browse-style content (knowledge base, changelog) where users compare panels.",
+            "Use defaultValue={['item-1']} to pre-open the most likely answer.",
+            "Keep trigger labels under ~50 chars — full questions live in the panel, not the trigger.",
+          ]}
+          dont={[
+            "Don't hide primary content behind an Accordion — required info or main flow should be visible.",
+            "Don't nest Accordions deeper than one level — the keyboard model and visual hierarchy break down.",
+            "Don't use Accordion for fewer than 3 sections — a list of always-visible content is clearer.",
+            "Don't use Accordion as a navigation pattern — use a Sidebar or NavigationMenu.",
+            "Don't pass Radix props (type='single' collapsible) — base-ui uses multiple={true|false} and defaultValue: string[].",
+          ]}
+        />
       </section>
 
       <Separator className="mb-10" />
 
-      {/* Token mapping */}
-      <section className="mb-10">
-        <h2 className="mb-3 text-base font-semibold text-foreground">Token Mapping (Figma → Code)</h2>
-        <div className="overflow-hidden rounded-lg border border-border">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/40">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Element</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Figma alias</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">CSS var</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Tailwind</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ["Section title", "shadcn/ui/foreground", "--foreground", "text-foreground"],
-                ["Chevron icon", "shadcn/ui/foreground", "--foreground", "text-foreground"],
-                ["Panel content", "shadcn/ui/foreground", "--foreground", "text-foreground"],
-                ["Item border", "shadcn/ui/border", "--border", "border-b"],
-                ["Focus ring", "shadcn/ui/ring", "--ring", "focus-visible:ring-ring/50"],
-              ].map((row) => (
-                <tr key={row[0]} className="border-b border-border last:border-0 hover:bg-muted/30">
-                  <td className="px-4 py-3 text-foreground">{row[0]}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{row[1]}</td>
-                  <td className="px-4 py-3 font-mono text-xs">
-                    <code className="rounded bg-muted px-1.5 py-0.5">{row[2]}</code>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs">
-                    <code className="rounded bg-muted px-1.5 py-0.5">{row[3]}</code>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <Separator className="mb-10" />
-
-      {/* Props */}
-      <section className="mb-10">
-        <h2 className="mb-4 text-base font-semibold text-foreground">Accordion (root)</h2>
-        <PropsTable props={accordionProps} />
-      </section>
-
-      <section className="mb-10">
-        <h2 className="mb-4 text-base font-semibold text-foreground">AccordionItem</h2>
-        <PropsTable props={itemProps} />
-      </section>
-
-      <section className="mb-10">
-        <h2 className="mb-4 text-base font-semibold text-foreground">FaqAccordion (composed)</h2>
-        <PropsTable props={faqProps} />
-      </section>
-
-      {/* Accessibility */}
+      {/* 5. Accessibility notes */}
       <section className="mb-10">
         <h2 className="mb-3 text-base font-semibold text-foreground">Accessibility</h2>
         <ul className="space-y-2 text-sm text-muted-foreground">
@@ -408,6 +400,14 @@ const items = [
             <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">aria-disabled</code> and reduced opacity.
           </li>
         </ul>
+      </section>
+
+      <Separator className="mb-10" />
+
+      {/* 6. Token mapping */}
+      <section className="mb-10">
+        <h2 className="mb-3 text-base font-semibold text-foreground">Token Mapping (Figma → Code)</h2>
+        <TokenMapTable rows={tokenRows} />
       </section>
     </div>
   )

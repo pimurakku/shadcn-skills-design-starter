@@ -27,6 +27,8 @@ const navigation = [
       { title: "Accordion", href: "/docs/components/accordion" },
       { title: "Badge", href: "/docs/components/badge" },
       { title: "Button", href: "/docs/components/button" },
+      { title: "Dialog", href: "/docs/components/dialog" },
+      { title: "Input", href: "/docs/components/input" },
       { title: "Separator", href: "/docs/components/separator" },
     ],
   },
