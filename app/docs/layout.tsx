@@ -1,5 +1,5 @@
 import { Sidebar } from "@/components/docs/Sidebar"
-import { ThemeToggle } from "@/components/docs/ThemeToggle"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (

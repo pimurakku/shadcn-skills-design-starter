@@ -29,26 +29,49 @@ variables-export.json  →  DESIGN.md  →  globals.css  →  Components
 
 ## 2. Skill Usage
 
-### Invoking the skill in Claude Code
+### Entry point: `shadcn-ui-design`
 
-Type in the Claude Code prompt:
+For **any** UI work in this repo, load `/shadcn-ui-design` first — it carries the project-specific contract (Next.js + shadcn + 35 tokens + Figma file) and delegates to specialist skills when the task crosses that scope.
+
 ```
 /shadcn-ui-design
 ```
 
-Or reference it explicitly in a prompt:
+Or in a prompt:
 ```
-Using the shadcn-ui-design skill, build a login page with email and password fields.
+Using shadcn-ui-design, build a login page with email + password fields.
 ```
 
-### What this skill handles
-- Generating new UI components with shadcn/ui primitives
-- Translating Figma designs into Next.js + Tailwind code
-- Pushing code components into Figma via MCP
-- Enforcing design token usage (no hardcoded colors/spacing)
-- Maintaining dark mode consistency
+### Full Skill Catalog (18 skills in `.claude/skills/`)
 
-### What this skill does NOT handle
+| Skill | When to use |
+|---|---|
+| **`shadcn-ui-design`** | **Entry point** — Next.js + shadcn + Tailwind v4 work in this repo |
+| `design-code` | Generate code for any framework (Vue, Flutter, SwiftUI, RN, etc.) |
+| `design-tokens` | Author/audit DTCG tokens (3-tier architecture) |
+| `token-build` | Build pipeline transforming `tokens/*.json` → platform artifacts |
+| `figma-integration` | Sync Figma ↔ code (Variables, Code Connect, drift checks) |
+| `image-to-code` | Convert a screenshot/mockup to code |
+| `design-component` | Spec a component (anatomy, 8 states) before coding |
+| `apply-aesthetic` | Apply a visual archetype (editorial, brutalist, soft-SaaS…) |
+| `brandkit` | Generate a complete brand from a brief |
+| `a11y-audit` | WCAG 2.2 AA/AAA audit with ARIA pattern checks |
+| `design-qa` | Set up CI gates (lint, axe, contrast, visual regression) |
+| `design-review` | Nielsen 10 heuristics + 6-dimension scoring |
+| `performance` | Core Web Vitals audit (LCP/INP/CLS) |
+| `prototype` | Fidelity-ladder prototyping with validation |
+| `redesign` | Upgrade existing UI without breaking |
+| `migrate-design-system` | Map this token system to/from Material 3, Apple HIG, Fluent, etc. |
+| `governance` | SemVer, deprecation policy, contribution workflow |
+| `ux-writing` | UI copy review (errors, empty states, microcopy) |
+
+### What `shadcn-ui-design` handles in this repo
+- UI components with shadcn/ui primitives
+- Figma designs → Next.js + Tailwind code (delegating to `figma-integration` for sync)
+- Enforcing the 35 semantic tokens from `references/DESIGN.md §2`
+- Dark mode via `next-themes`
+
+### What it does NOT handle
 - Backend logic, API routes, database queries
 - Authentication implementation
 - Deployment configuration
@@ -78,31 +101,50 @@ Using the shadcn-ui-design skill, build a login page with email and password fie
 
 ## 4. Repository & Project Structure
 
-### Full project structure (skill package + Next.js app in one repo)
+### Full project structure
 ```
-create-skill-design/                   ← project root (Next.js app lives here)
+create-skill-design/                   ← project root
 ├── CLAUDE.md                          ← you are here
-├── app/
-│   ├── globals.css                    ← CSS variables from references/DESIGN.md §2
+├── AGENTS.md                          ← agent persona (ux-ui-kit master instructions)
+├── AUDIT.md                           ← component audit reports
+├── VARIANTS.md                        ← per-component variant matrix
+├── README.md
+├── .mcp.json                          ← Figma SSE + shadcn MCP servers
+├── app/                               ← Next.js App Router
+│   ├── globals.css                    ← 35 semantic CSS variables (references/DESIGN.md §2)
 │   ├── layout.tsx                     ← ThemeProvider + font setup
-│   └── (routes)/
+│   └── docs/                          ← in-repo docs site
 ├── components/
-│   ├── ui/                            ← shadcn/ui generated — do not edit manually
-│   └── [feature]/                     ← composed feature components
+│   ├── ui/                            ← shadcn/ui generated — never edit
+│   ├── docs/                          ← docs UI (Sidebar, Preview, PropsTable, ColorSwatch)
+│   ├── demo/                          ← component demos
+│   ├── theme-provider.tsx             ← next-themes wrapper
+│   ├── theme-toggle.tsx               ← dark/light toggle
+│   └── faq-accordion.tsx              ← composed accordion
+├── hooks/
+│   └── use-mobile.ts                  ← media-query mobile detection
 ├── lib/
-│   └── utils.ts                       ← cn() helper
+│   ├── utils.ts                       ← cn() helper
+│   └── tokens/colors.ts               ← 1,804 Figma color tokens (auto-generated)
+├── scripts/                           ← token validators + a11y/contrast/render scripts
 ├── public/
-├── package.json
 └── .claude/
-    ├── settings.local.json            ← project-level Claude permissions
-    └── skills/
-        └── shadcn-ui-design/
-            ├── SKILL.md               ← Claude's UI building rules
-            ├── assets/                ← visual reference files
-            ├── references/
-            │   └── DESIGN.md          ← 1,804 design tokens (source of truth)
-            └── scripts/
-                └── validate-tokens.py ← token completeness checker
+    ├── settings.local.json
+    ├── skills/                        ← 18 skills (see catalog above)
+    │   ├── shadcn-ui-design/          ← project entry point
+    │   │   ├── SKILL.md
+    │   │   ├── references/DESIGN.md   ← 1,804 design tokens (source of truth)
+    │   │   ├── scripts/validate-tokens.py
+    │   │   └── assets/
+    │   └── {design-code, design-tokens, figma-integration, a11y-audit, ...}/
+    ├── tokens/                        ← 13 DTCG token JSON files
+    ├── components/                    ← 11 component spec docs (atoms → templates)
+    ├── frameworks/                    ← adapter protocol + 3 full + 16 concise adapters
+    ├── accessibility/                 ← WCAG checklist + ARIA + cognitive/vision/RTL
+    ├── design-systems/                ← 138 design system DESIGN.md files
+    ├── taste/                         ← anti-slop, aesthetic archetypes, motion
+    ├── workflows/                     ← design-review, prototyping, governance, etc.
+    └── content/                       ← voice & tone system
 ```
 
 ---
@@ -491,18 +533,47 @@ export function FeatureName({ className }: FeatureNameProps) {
 
 ## 12. Key Files Map
 
+### Project files
 | File | Location | Purpose |
-|------|----------|---------|
-| `CLAUDE.md` | project root | This file — system overview for Claude |
-| `SKILL.md` | `.claude/skills/shadcn-ui-design/` | Step-by-step UI building rules |
-| `DESIGN.md` | `.claude/skills/shadcn-ui-design/references/` | 1,804 design token reference |
-| `validate-tokens.py` | `.claude/skills/shadcn-ui-design/scripts/` | Token completeness verifier |
-| `globals.css` | `app/` | CSS variable declarations (35 semantic tokens) |
+|---|---|---|
+| `CLAUDE.md` | root | This file — system overview |
+| `AGENTS.md` | root | ux-ui-kit agent persona + Request Router |
+| `AUDIT.md` | root | Component audit reports (templates + filled audits) |
+| `VARIANTS.md` | root | Per-component variant matrix |
+| `.mcp.json` | root | Figma SSE + shadcn MCP server config |
+| `globals.css` | `app/` | 35 semantic CSS variables (light + dark) |
 | `layout.tsx` | `app/` | ThemeProvider + font setup |
 | `utils.ts` | `lib/` | `cn()` class merging helper |
-| `components/ui/` | project root | shadcn/ui generated components (read-only) |
-| `variables-export.json` | project root or external | Figma token export (lazyyysync format) |
-| `.figma.ts` files | next to component files | Code Connect mappings |
+| `colors.ts` | `lib/tokens/` | 1,804 Figma color tokens (auto-generated TS) |
+| `use-mobile.ts` | `hooks/` | Mobile breakpoint detection |
+| `theme-provider.tsx` | `components/` | next-themes wrapper |
+| `theme-toggle.tsx` | `components/` | Dark/light toggle button |
+| `components/ui/` | root | shadcn primitives (read-only) |
+
+### Skill package (`.claude/skills/shadcn-ui-design/`)
+| File | Purpose |
+|---|---|
+| `SKILL.md` | Project entry-point skill — delegates to ux-ui-kit |
+| `references/DESIGN.md` | 1,804 Figma variable reference (16 collections) |
+| `scripts/validate-tokens.py` | Token completeness verifier |
+
+### ux-ui-kit reference (`.claude/`)
+| Folder | Purpose |
+|---|---|
+| `.claude/tokens/` | 13 DTCG JSON files (colors, type, spacing, motion…) |
+| `.claude/components/` | 11 component spec docs (atoms → templates) |
+| `.claude/frameworks/` | Adapter protocol + React/Next/SwiftUI + 16 concise adapters |
+| `.claude/accessibility/` | WCAG 2.2 checklist + ARIA + cognitive/vision/RTL/i18n |
+| `.claude/design-systems/` | 138 design system DESIGN.md files + crosswalk + interop |
+| `.claude/taste/` | Anti-slop doctrine + aesthetic archetypes + motion |
+| `.claude/workflows/` | Design review, prototyping, governance, perf, redesign-audit |
+| `.claude/content/voice-tone.md` | Voice & tone system |
+
+### External
+| File | Location | Purpose |
+|---|---|---|
+| `variables-export.json` | `~/PEA/Course/AI Design System Bootcamp/` | Figma export (lazyyysync) |
+| `.figma.ts` files | next to component files | Code Connect mappings (when set up) |
 
 ---
 

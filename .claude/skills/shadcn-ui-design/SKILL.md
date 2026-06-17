@@ -1,46 +1,74 @@
-# Skill: Build UI with shadcn/ui + Tailwind CSS v4
+---
+name: shadcn-ui-design
+description: Project entry-point skill for this Next.js + shadcn/ui + Tailwind CSS v4 codebase. Enforces the 35 semantic tokens from the Figma export, the install-via-CLI rule for components, and the file/import conventions. Use FIRST for any UI work in this repo; delegate to the ux-ui-kit skills below for framework-agnostic tasks.
+---
 
-You are helping build UI for a **Next.js** project using **shadcn/ui** and **Tailwind CSS v4** with the **Default Neutral** theme. Follow this skill precisely whenever you create, edit, or review UI code.
+# Skill: shadcn-ui-design (Project Entry Point)
+
+This is the **first skill to load** when doing UI work in this repository. It carries the project-specific contract (Next.js 16 + shadcn/ui + Tailwind v4 + 35 semantic tokens from the Figma file). For framework-agnostic concerns (generic codegen, token authoring, Figma sync, audits), it **delegates** to skills in `.claude/skills/`.
 
 ---
 
-## Step 0 — Read before writing
+## Related Skills — when to delegate
 
-Before writing any UI code:
-1. Check which components are already installed under `components/ui/`
-2. Check `app/globals.css` to confirm the 35 semantic CSS variables are declared (reference the token names in references/DESIGN.md §2)
-3. Read `lib/utils.ts` to confirm the `cn()` helper is available
+| Need | Skill | Why delegate |
+|---|---|---|
+| Generate code for a NON-Next.js stack (Vue, Flutter, SwiftUI, RN…) | `design-code` | This skill is shadcn/Next-specific |
+| Author/audit DTCG tokens from scratch | `design-tokens` | Token authoring methodology |
+| Build the token pipeline (CSS/SCSS/native artifacts) | `token-build` | Pipeline ops |
+| Push/pull design ↔ Figma, Variables, Code Connect | `figma-integration` | Bidirectional sync layer |
+| Convert a screenshot/image to code | `image-to-code` | Image→code workflow |
+| Spec a new component (anatomy, 8 states) before coding | `design-component` | Spec-first method |
+| Apply a visual archetype (editorial, brutalist, soft-SaaS…) | `apply-aesthetic` | Aesthetic system |
+| Build a brand from scratch | `brandkit` | Brand generation |
+| Audit accessibility (WCAG 2.2) | `a11y-audit` | A11y specialist |
+| Set up QA gates (lint, axe, visual regression) | `design-qa` | CI gating |
+| Heuristic UI review (Nielsen × 10) | `design-review` | Usability audit |
+| Performance audit (LCP/INP/CLS) | `performance` | Perf specialist |
+| Prototype at varying fidelity | `prototype` | Fidelity ladder |
+| Redesign existing site without breaking | `redesign` | Migration workflow |
+| Map this token system to/from Material 3 / Apple HIG / etc. | `migrate-design-system` | Cross-system map |
+| Govern SemVer / deprecation policy | `governance` | Design-system ops |
+| Write UI copy (errors, empty states, microcopy) | `ux-writing` | Voice & tone |
+
+**Reference material** (read-only, loaded by skills above):
+- `.claude/tokens/*.json` — DTCG tokens (13 files: colors, type, spacing, motion…)
+- `.claude/components/*.md` — 11 component spec docs (atoms → templates)
+- `.claude/frameworks/` — adapter protocol + 3 full + 16 concise adapters
+- `.claude/accessibility/` — WCAG checklist + ARIA patterns + cognitive/vision/RTL
+- `.claude/design-systems/library/` — 138 design system DESIGN.md files
+- `.claude/taste/` — anti-slop doctrine, archetypes, motion choreography
+- `.claude/workflows/` — design-review, handoff, prototyping, governance
+- `.claude/content/voice-tone.md` — voice & tone system
+- `references/DESIGN.md` — **this project's** 1,804 Figma variables (16 collections)
 
 ---
 
-## Step 1 — Install components via CLI
+## Step 0 — Before writing any UI code
 
-Never write shadcn component source code from scratch. Always install via CLI:
-
-```bash
-npx shadcn@latest add <component-name>
-```
-
-Install multiple at once:
-```bash
-npx shadcn@latest add button card input label form
-```
-
-For monorepos, specify the app path:
-```bash
-npx shadcn@latest add button -c apps/web
-```
-
-Only write custom component code in `components/[feature]/` — never modify files inside `components/ui/`.
+1. Confirm what's already installed in `components/ui/`
+2. Confirm the 35 semantic CSS variables are declared in `app/globals.css` (reference `references/DESIGN.md §2`)
+3. Confirm `lib/utils.ts` exports `cn()`
 
 ---
 
-## Step 2 — Use semantic color tokens only
+## Step 1 — Install via CLI, never hand-write shadcn source
 
-**Always** reference CSS variable tokens via Tailwind utilities. **Never** use hardcoded colors.
+```bash
+npx shadcn@latest add <component>           # one
+npx shadcn@latest add button card input    # many
+```
 
-| Correct | Wrong |
-|---------|-------|
+Never modify files inside `components/ui/`. Compose them in `components/<feature>/` or at the top level of `components/`.
+
+---
+
+## Step 2 — Semantic tokens only (this project's 35)
+
+Use Tailwind utilities backed by CSS variables. Never raw hex.
+
+| ✅ Correct | ❌ Wrong |
+|---|---|
 | `bg-background` | `bg-white` |
 | `text-foreground` | `text-gray-900` |
 | `text-muted-foreground` | `text-gray-500` |
@@ -48,17 +76,13 @@ Only write custom component code in `components/[feature]/` — never modify fil
 | `border-border` | `border-gray-200` |
 | `bg-destructive` | `bg-red-500` |
 
-The 35 semantic tokens (full list in references/DESIGN.md §2): `background`, `foreground`, `card`, `card-foreground`, `popover`, `popover-foreground`, `primary`, `primary-foreground`, `secondary`, `secondary-foreground`, `muted`, `muted-foreground`, `accent`, `accent-foreground`, `destructive`, `border`, `input`, `ring`, `chart-1..5`, `sidebar`, `sidebar-foreground`, `sidebar-primary`, `sidebar-primary-foreground`, `sidebar-accent`, `sidebar-accent-foreground`, `sidebar-border`, `sidebar-ring`, `background-color`, `semantic-background`, `semantic-border`, `semantic-foreground`.
+The 35 tokens are listed in `references/DESIGN.md §2`. Both `tw/colors` (244 palette vars) and `rdx/colors` (396 Radix steps) exist for illustration/data-viz/accent uses — never use them as component semantic surfaces.
 
-**Palette colors** (`tw/colors` §3 and `rdx/colors` §4 in references/DESIGN.md) are raw palette references — use them only for one-off accent colors or illustration, never for component semantic surfaces.
-
-For custom colors not in the token set, define a new CSS variable in `globals.css` under `:root` and expose it in `@theme inline`, then use it as a Tailwind class. Do not use arbitrary values like `bg-[#abc123]` for themed surfaces.
+For a NEW semantic color: add a CSS var under `:root` in `globals.css`, expose via `@theme inline`, then use as a Tailwind class. **Don't** use arbitrary values like `bg-[#abc123]`.
 
 ---
 
-## Step 3 — Component composition rules
-
-### Always use `cn()` for conditional classes
+## Step 3 — Composition rules
 
 ```tsx
 import { cn } from "@/lib/utils"
@@ -66,34 +90,19 @@ import { cn } from "@/lib/utils"
 <div className={cn("base-class", isActive && "active-class", className)} />
 ```
 
-### Use `asChild` for polymorphic rendering
-
+Use `asChild` for polymorphism:
 ```tsx
-// Render a Button as a Next.js Link
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-
 <Button asChild>
   <Link href="/dashboard">Dashboard</Link>
 </Button>
 ```
 
-### Compose, don't nest raw HTML inside shadcn components
-
+Compose via shadcn sub-components — never raw `<div>` inside a `<Card>`:
 ```tsx
-// Correct — use the provided sub-components
+// ✓
 <Card>
-  <CardHeader>
-    <CardTitle>Title</CardTitle>
-  </CardHeader>
-  <CardContent>Content here</CardContent>
-</Card>
-
-// Wrong — raw div inside Card
-<Card>
-  <div className="p-6">
-    <h3>Title</h3>
-  </div>
+  <CardHeader><CardTitle>Title</CardTitle></CardHeader>
+  <CardContent>Body</CardContent>
 </Card>
 ```
 
@@ -101,233 +110,155 @@ import { Button } from "@/components/ui/button"
 
 ## Step 4 — Typography
 
-Never create a `<Typography>` wrapper component. Apply Tailwind classes directly to HTML elements using the scale from references/DESIGN.md §5 (Typography).
+Apply Tailwind classes directly to HTML — no `<Typography>` wrapper. Fonts via `next/font` in `app/layout.tsx` (Inter = `--font-sans`, Geist Mono = `--font-geist-mono`). Full scale: `references/DESIGN.md §5`.
 
-**Font stack** (from references/DESIGN.md §5): `family/sans = Inter` · `family/mono = Geist Mono`  
-Apply via `next/font` in `layout.tsx` and set as CSS variables on `<html>`.
-
-```tsx
-// Correct
-<h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
-  Page Title
-</h1>
-<p className="leading-7 [&:not(:first-child)]:mt-6">Body text.</p>
-<p className="text-sm text-muted-foreground">Helper / caption text.</p>
-```
-
-| Role | Tailwind classes | DESIGN.md reference |
-|------|-----------------|---------------------|
-| H1 | `scroll-m-20 text-4xl font-extrabold tracking-tight text-balance` | `size/4xl` · `weight/extrabold` · `tracking/tight` |
-| H2 | `scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight` | `size/3xl` · `weight/semibold` |
-| H3 | `scroll-m-20 text-2xl font-semibold tracking-tight` | `size/2xl` · `weight/semibold` |
-| H4 | `scroll-m-20 text-xl font-semibold tracking-tight` | `size/xl` · `weight/semibold` |
-| Body | `leading-7 [&:not(:first-child)]:mt-6` | `leading/7` |
-| Lead | `text-xl text-muted-foreground` | `size/xl` |
-| Small | `text-sm font-medium leading-none` | `size/sm` · `weight/medium` |
-| Muted | `text-sm text-muted-foreground` | `size/sm` |
-| Mono | `font-mono text-sm` | `family/mono` · `size/sm` |
+| Role | Classes |
+|---|---|
+| H1 | `scroll-m-20 text-4xl font-extrabold tracking-tight text-balance` |
+| H2 | `scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight` |
+| H3 | `scroll-m-20 text-2xl font-semibold tracking-tight` |
+| Body | `leading-7 [&:not(:first-child)]:mt-6` |
+| Muted | `text-sm text-muted-foreground` |
+| Mono | `font-mono text-sm` |
 
 ---
 
-## Step 5 — Forms
-
-Use React Hook Form + Zod with shadcn Form components. Install dependencies:
+## Step 5 — Forms (React Hook Form + Zod)
 
 ```bash
 npm install react-hook-form zod @hookform/resolvers
 npx shadcn@latest add form input label
 ```
 
-Standard form pattern:
-
-```tsx
-"use client"
-
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import {
-  Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-
-const schema = z.object({
-  email: z.string().email(),
-})
-
-export function ExampleForm() {
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues: { email: "" },
-  })
-
-  function onSubmit(values: z.infer<typeof schema>) {
-    // handle submit
-  }
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormDescription>We'll never share your email.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
-  )
-}
-```
+Use the standard `<Form>` + `<FormField>` + `<FormItem>` + `<FormLabel>` + `<FormControl>` + `<FormMessage>` pattern. For deeper guidance on forms in arbitrary frameworks → delegate to `design-code`.
 
 ---
 
-## Step 6 — Loading & feedback states
-
-Use shadcn Skeleton for loading placeholders, Spinner for inline loading, and Sonner for toast notifications.
+## Step 6 — Feedback states
 
 ```bash
 npx shadcn@latest add skeleton spinner sonner
 ```
 
-```tsx
-// Skeleton placeholder
-<Skeleton className="h-4 w-[250px]" />
-
-// Spinner in button
-<Button disabled>
-  <Spinner className="mr-2" />
-  Saving…
-</Button>
-
-// Toast in layout
-import { Toaster } from "@/components/ui/sonner"
-// in layout.tsx: <Toaster />
-
-// Trigger toast
-import { toast } from "sonner"
-toast.success("Saved successfully")
-toast.error("Something went wrong")
-```
+- Skeleton for placeholders: `<Skeleton className="h-4 w-[250px]" />`
+- Spinner inside Button: pass `isLoading` prop (already supported in our Button)
+- Toast via Sonner: `import { toast } from "sonner"` → `toast.success(...)`
 
 ---
 
-## Step 7 — Dialogs and overlays
+## Step 7 — Dialogs
 
-Use Dialog for modal confirmations, Sheet for side panels, Drawer for mobile-optimized panels, AlertDialog for destructive confirmations.
+- `<Dialog>` — modal confirmations
+- `<Sheet>` — side panel
+- `<Drawer>` — mobile-optimized
+- `<AlertDialog>` — destructive confirmations (Delete/Remove)
 
-```tsx
-// Destructive confirm pattern
-<AlertDialog>
-  <AlertDialogTrigger asChild>
-    <Button variant="destructive">Delete</Button>
-  </AlertDialogTrigger>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-      <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>Cancel</AlertDialogCancel>
-      <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
-```
+**Destructive confirm UX rule** — confirm button text must restate the action ("Delete account", not "OK"). For high-stakes, type-to-confirm. See `.claude/content/voice-tone.md`.
 
 ---
 
 ## Step 8 — Dark mode
 
-Never use `dark:bg-white` style overrides for theme switching — the 35 semantic tokens in references/DESIGN.md §2 handle it automatically (each has a distinct light and dark value). Only add `dark:` prefix for structural differences (e.g., border visibility, shadow intensity) that the semantic tokens don't cover.
+The 35 semantic tokens have light + dark values built in — `next-themes` swaps a `.dark` class on `<html>`. Never use `dark:bg-white`-style overrides for theming. Only `dark:` for structural differences (border visibility, shadow intensity).
 
-Ensure `ThemeProvider` from `next-themes` wraps the app in `layout.tsx`:
-
-```tsx
-import { ThemeProvider } from "next-themes"
-
-export default function RootLayout({ children }) {
-  return (
-    <html suppressHydrationWarning>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
-  )
-}
-```
+ThemeProvider wrapper is at `components/theme-provider.tsx`. Toggle at `components/theme-toggle.tsx`.
 
 ---
 
 ## Step 9 — Tailwind v4 specifics
 
-- Use `size-*` instead of `w-* h-*` for square elements: `size-4` not `w-4 h-4`
-- Spacing scale is in references/DESIGN.md §6–9 (padding, margin, gap, space) — always use tokens like `p-4`, `gap-2`, `mt-6`, not arbitrary `p-[14px]`
-- Height scale: references/DESIGN.md §10a · Max-height: §10b · Max-width: §10c
-- Border radius scale: references/DESIGN.md §11 (10 steps: `rounded-xs` → `rounded-4xl` → `rounded-full`)
-- Border width scale: references/DESIGN.md §12 (0, 1, 2, 4, 8 px per side)
-- Animations: use `tw-animate-css`, not `tailwindcss-animate`
+- Use `size-*` not `w-* h-*` for squares: `size-4`
+- Spacing/sizing from token scale (`references/DESIGN.md §6–10`): `p-4`, `gap-2`, `mt-6` — not `p-[14px]`
+- Radius scale: `references/DESIGN.md §11`
+- Border width: `references/DESIGN.md §12`
+- Animations: `tw-animate-css` (NOT `tailwindcss-animate`)
 - No `tailwind.config.js` — all config lives in `globals.css` via `@theme inline`
-- To add a custom color to the design system:
 
+To add a custom theme color:
 ```css
-/* globals.css */
-:root {
-  --brand: oklch(0.6 0.2 250);
-}
-@theme inline {
-  --color-brand: var(--brand);
-}
-/* Usage in JSX: className="bg-brand text-brand-foreground" */
+:root { --brand: oklch(0.6 0.2 250); }
+@theme inline { --color-brand: var(--brand); }
+/* use: className="bg-brand" */
 ```
 
 ---
 
-## Step 10 — Quality checklist
+## Step 10 — Quality checklist (before declaring done)
 
-Before completing any UI task, verify:
+- [ ] All shadcn components installed via CLI (no hand-written source)
+- [ ] Only semantic tokens used (no raw hex/rgb, no `bg-gray-500` palette utilities)
+- [ ] `cn()` for conditional classNames
+- [ ] No hardcoded pixel values (`p-[14px]` forbidden)
+- [ ] Dark mode works without overrides
+- [ ] Interactive elements keyboard accessible (Radix handles this)
+- [ ] Loading + error states present
+- [ ] No `any` types
+- [ ] `"use client"` only where required (hooks / event handlers / browser APIs)
+- [ ] No emoji as icons — use lucide-react SVGs with `currentColor`
 
-- [ ] All components installed via CLI — no hand-written shadcn source
-- [ ] Only semantic color tokens used (no raw hex/rgb)
-- [ ] `cn()` used for all conditional className merging
-- [ ] No hardcoded pixel values for spacing — use Tailwind scale (`p-4`, `gap-2`, etc.)
-- [ ] Dark mode works without extra overrides
-- [ ] Interactive elements are keyboard accessible (shadcn handles this via Radix UI)
-- [ ] Loading and error states are covered
-- [ ] TypeScript types are correct — no `any`
-- [ ] `"use client"` added only to components that require browser APIs or event handlers
+For deeper audits → delegate to `a11y-audit` / `design-qa` / `design-review`.
 
 ---
 
 ## Common patterns quick reference
 
 | Need | Component(s) |
-|------|-------------|
+|---|---|
 | Primary action | `<Button>` |
-| Navigating to a route | `<Button asChild><Link href="…">` |
-| Info container | `<Card>` with `<CardHeader>`, `<CardContent>` |
+| Link as button | `<Button asChild><Link href="…">` |
+| Info container | `<Card>` + `<CardHeader>` + `<CardContent>` |
 | Form field | `<FormField>` + `<FormItem>` + `<FormLabel>` + `<FormControl>` + `<FormMessage>` |
-| Select / dropdown | `<Select>` with `<SelectTrigger>`, `<SelectContent>`, `<SelectItem>` |
-| Confirmation modal | `<AlertDialog>` |
+| Select | `<Select>` + `<SelectTrigger>` + `<SelectContent>` + `<SelectItem>` |
+| Confirm modal | `<AlertDialog>` |
 | Side panel | `<Sheet>` |
-| Notification | `toast()` from Sonner |
-| Loading state | `<Skeleton>` or `<Spinner>` |
-| Empty state | `<Empty>` |
-| Data list | `<Table>` or `<DataTable>` |
-| Tabbed content | `<Tabs>` with `<TabsList>`, `<TabsTrigger>`, `<TabsContent>` |
-| Collapsible section | `<Accordion>` |
+| Toast | `toast()` from sonner + `<Toaster>` in layout |
+| Skeleton | `<Skeleton>` |
+| FAQ | `<FaqAccordion>` (composed, `components/faq-accordion.tsx`) |
+| Tabbed content | `<Tabs>` + `<TabsList>` + `<TabsTrigger>` + `<TabsContent>` |
+| Collapsible | `<Accordion>` |
 | Date picker | `<DatePicker>` (Calendar + Popover) |
-| Toast | `<Toaster>` in layout + `toast()` trigger |
 | Command palette | `<Command>` |
+
+---
+
+## Project file structure
+
+```
+app/                          → Next.js App Router
+components/
+├── ui/                       → shadcn primitives (don't edit)
+├── docs/                     → docs-specific UI (Sidebar, Preview, PropsTable, ColorSwatch)
+├── demo/                     → component demos
+├── theme-provider.tsx        → next-themes wrapper
+├── theme-toggle.tsx          → dark/light toggle
+└── faq-accordion.tsx         → composed FAQ component
+hooks/use-mobile.ts           → media-query mobile detection
+lib/utils.ts                  → cn() helper
+lib/tokens/colors.ts          → 1,804 Figma color tokens (auto-generated)
+scripts/                      → token validators + a11y audits
+.claude/skills/               → 18 skills (this is one of them)
+.claude/{tokens,components,frameworks,accessibility,taste,workflows,design-systems,content}/
+                              → ux-ui-kit reference material
+```
+
+---
+
+## Common Claude prompts for this project
+
+```
+Using shadcn-ui-design, implement [Figma URL] as a Next.js component.
+Apply tokens from references/DESIGN.md §2. Install required shadcn components first.
+```
+
+```
+Using shadcn-ui-design, add a StatsCard with metric + label + trend indicator.
+Follow this skill's conventions.
+```
+
+```
+Audit components/<file>.tsx with a11y-audit and design-qa.
+```
+
+```
+Update DESIGN.md from variables-export.json — verify exactly 1,804 variables.
+```
