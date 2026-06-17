@@ -3,7 +3,7 @@
 Tracks parity between **Figma** source-of-truth components and the **code** implementations in `components/ui/` + composed components in `components/`.
 
 **Figma file:** https://www.figma.com/design/umeswexdAUadWQjZFimTZg/-shadcn_ui-components---Workshop  
-**Last audit:** _Not yet run_ — fill this table when `/audit-components` or manual audit runs.
+**Last audit:** 2026-06-17 — Figma parity audit complete for Button, Badge, Separator, Accordion. All issues fixed.
 
 ---
 
@@ -23,10 +23,10 @@ Tracks parity between **Figma** source-of-truth components and the **code** impl
 
 | Component | Status | Figma node | Code path | Parity | Notes |
 |---|---|---|---|---|---|
-| Button | ✅ | `402:654` | `components/ui/button.tsx` | ✅ | All 6 variants + loading + 5 sizes match Figma. Solid destructive (not subtle). |
-| Badge | ✅ | _TBD_ | `components/ui/badge.tsx` | _TBD_ | Installed via shadcn CLI default. Figma source not yet audited. |
-| Separator | ✅ | _TBD_ | `components/ui/separator.tsx` | _TBD_ | Installed via shadcn CLI default. Figma source not yet audited. |
-| Accordion | ✅ | _TBD_ | `components/ui/accordion.tsx` | _TBD_ | Installed via shadcn CLI default. Figma source not yet audited. |
+| Button | ✅ | `402:654` | `components/ui/button.tsx` | ✅ | 6 variants + isLoading + 5 sizes. Destructive uses `text-destructive-foreground` (fixed from `text-white`). |
+| Badge | ✅ | `73:3479` | `components/ui/badge.tsx` | ✅ | 8 variants matching Figma: 4 text-shaped (rounded-lg, h-22px), 1 icon, 3 number-shaped (rounded-full). Removed non-Figma ghost/link variants. |
+| Separator | ✅ | `76:10176` | `components/ui/separator.tsx` | ✅ | Uses `bg-border` (= shadcn/ui/border). Both orientations. |
+| Accordion | ✅ | `73:3341` | `components/ui/accordion.tsx` | ✅ | Trigger padding `py-4` (was `py-2.5`); chevron color `text-foreground` (was `text-muted-foreground`). Matches Figma 16/16 padding. |
 | FaqAccordion | ✅ | _N/A_ | `components/faq-accordion.tsx` | _N/A_ | Composed (uses Accordion primitive). No direct Figma source. |
 | ThemeToggle | ✅ | _N/A_ | `components/theme-toggle.tsx` | _N/A_ | Custom — Sun/Moon icons, ghost button. |
 | ThemeProvider | ✅ | _N/A_ | `components/theme-provider.tsx` | _N/A_ | next-themes wrapper. |
@@ -71,18 +71,87 @@ Tracks parity between **Figma** source-of-truth components and the **code** impl
 - `isLoading` prop with Loader2 spinner ✅
 - "With icon" handled by placing Lucide icon as child ✅
 
-#### Token mapping (Figma RGB → CSS var)
-| Figma color | Hex | CSS var | Tailwind class |
+#### Token mapping (Figma alias → CSS var → Tailwind)
+| Figma alias | Hex | CSS var | Tailwind class |
 |---|---|---|---|
-| Primary fill | `#171717` | `--primary` | `bg-primary` |
-| Primary text | `#FAFAFA` | `--primary-foreground` | `text-primary-foreground` |
-| Secondary fill | `#F5F5F5` | `--secondary` | `bg-secondary` |
-| Destructive fill | `#DC2626` | `--destructive` | `bg-destructive` |
-| Outline border | `#E5E5E5` | `--border` | `border-border` |
+| `shadcn/ui/primary` | `#171717` | `--primary` | `bg-primary` |
+| `shadcn/ui/primary-foreground` | `#FAFAFA` | `--primary-foreground` | `text-primary-foreground` |
+| `shadcn/ui/secondary` | `#F5F5F5` | `--secondary` | `bg-secondary` |
+| `shadcn/ui/destructive` | `#DC2626` | `--destructive` | `bg-destructive` |
+| `rdx/colors/white/12` (in Figma) | `#FFFFFF` | `--destructive-foreground` | `text-destructive-foreground` |
+| `shadcn/ui/border` | `#E5E5E5` | `--border` | `border-border` |
+| `shadcn/ui/foreground` | `#0A0A0A` | `--foreground` | `text-foreground` |
 | Hover overlay | `#F5F5F5` | `--muted` | `hover:bg-muted` |
 
 #### Open questions
 - Should hover states be explicit variants or pure `:hover` pseudo-class? Currently we use `:hover` (CSS) — Figma shows them as separate variants for design clarity.
+
+---
+
+### Badge — `components/ui/badge.tsx`
+
+**Source:** [Figma node 73:3479](https://www.figma.com/design/umeswexdAUadWQjZFimTZg/-shadcn_ui-components---Workshop?node-id=73-3479)
+**Status:** ✅ Implemented (parity fixes applied 2026-06-17)
+**Last audit:** 2026-06-17
+
+#### Figma variants (8 from COMPONENT_SET)
+| Figma name | Code variant | Shape | Bound tokens |
+|---|---|---|---|
+| `Type=Default` | `default` | rounded-lg | `shadcn/ui/primary` + `shadcn/ui/primary-foreground` |
+| `Type=Secondary` | `secondary` | rounded-lg | `shadcn/ui/secondary` + `shadcn/ui/secondary-foreground` |
+| `Type=Destructive` | `destructive` | rounded-lg | `shadcn/ui/destructive` + `rdx/colors/white/12` → `--destructive-foreground` |
+| `Type=Outline` | `outline` | rounded-lg | `shadcn/ui/border` + `shadcn/ui/foreground` |
+| `Type=Secondary_icon` | `secondary-icon` | rounded-lg | `shadcn/ui/primary` + `shadcn/ui/primary-foreground` |
+| `Type=Default_number` | `default-number` | rounded-full | `shadcn/ui/primary` + `shadcn/ui/primary-foreground` |
+| `Type=Destructive_number` | `destructive-number` | rounded-full | `shadcn/ui/destructive` + `--destructive-foreground` |
+| `Type=Secondary_number` | `secondary-number` | rounded-full | `shadcn/ui/border` + `shadcn/ui/foreground` (Geist Mono) |
+
+#### Fixes applied
+- Changed `rounded-4xl` → `rounded-lg` (matches Figma r=8) + `rounded-full` for number variants
+- Changed `h-5` (20px) → `h-[22px]` (matches Figma)
+- Flipped destructive: `bg-destructive/10 text-destructive` → solid `bg-destructive text-destructive-foreground`
+- Added 4 missing variants: `secondary-icon`, `default-number`, `destructive-number`, `secondary-number`
+- Removed `ghost` and `link` (not in Figma)
+
+---
+
+### Accordion — `components/ui/accordion.tsx`
+
+**Source:** [Figma node 73:3341](https://www.figma.com/design/umeswexdAUadWQjZFimTZg/-shadcn_ui-components---Workshop?node-id=73-3341)
+**Status:** ✅ Implemented
+**Last audit:** 2026-06-17
+
+#### Figma states (2)
+- `State=Default` — collapsed (52px row: trigger 16+20+16)
+- `State=Open` — expanded with answer panel
+
+#### Token mapping
+| Element | Figma | CSS var | Tailwind class |
+|---|---|---|---|
+| Section title | `shadcn/ui/foreground` | `--foreground` | `text-foreground` (inherited) |
+| Chevron icon | implicit (foreground) | `--foreground` | `text-foreground` |
+| Panel content text | `shadcn/ui/foreground` | `--foreground` | `text-foreground` (inherited) |
+| Item border | `shadcn/ui/border` | `--border` | `border-b` |
+
+#### Fixes applied
+- Trigger padding `py-2.5` → `py-4` (matches Figma 16/16)
+- Chevron color `text-muted-foreground` → `text-foreground`
+- FaqAccordion answer color: removed `text-muted-foreground` override (now inherits `foreground`)
+
+---
+
+### Separator — `components/ui/separator.tsx`
+
+**Source:** [Figma node 76:10176](https://www.figma.com/design/umeswexdAUadWQjZFimTZg/-shadcn_ui-components---Workshop?node-id=76-10176)
+**Status:** ✅ Implemented
+**Last audit:** 2026-06-17
+
+#### Spec
+- Background: `bg-border` (= `shadcn/ui/border` = `#E5E5E5` light / `#404040` dark)
+- Orientations: horizontal (`h-px w-full`) · vertical (`w-px self-stretch`)
+- `decorative` prop forwarded via base-ui Separator primitive
+
+No Figma divergence. Token-aligned.
 
 ---
 

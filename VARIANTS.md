@@ -14,7 +14,7 @@ Quick-reference table for every variant/size/state combination supported by each
 |---|---|---|
 | `default` | `bg-primary text-primary-foreground hover:bg-primary/90` | Primary action |
 | `secondary` | `bg-secondary text-secondary-foreground hover:bg-secondary/80` | Secondary action |
-| `destructive` | `bg-destructive text-white hover:bg-destructive/90` | Delete / dangerous |
+| `destructive` | `bg-destructive text-destructive-foreground hover:bg-destructive/90` | Delete / dangerous |
 | `outline` | `border-border bg-background hover:bg-muted` | Bordered, less weight |
 | `ghost` | `hover:bg-muted hover:text-foreground` | Tertiary, no surface |
 | `link` | `text-primary underline-offset-4 hover:underline` | Inline link-style |
@@ -50,16 +50,41 @@ Quick-reference table for every variant/size/state combination supported by each
 
 ## Badge — `components/ui/badge.tsx`
 
-### Variants (4)
+**Source:** Figma node `73:3479` (8 variants — 4 text-shaped + 1 icon + 3 number-shaped)
 
-| Variant | Use case |
-|---|---|
-| `default` | Primary tag |
-| `secondary` | Neutral tag |
-| `destructive` | Warning / error tag |
-| `outline` | Subtle bordered tag |
+> Note: Badge uses `h-6` (24px) instead of Figma's 22px — token-aligned + meets WCAG 2.5.8 target size when used as interactive `<a>`.
 
-No size variants. Custom `className` via prop.
+### Text variants (4) — rounded-lg, h-6
+
+| Variant | Tailwind classes | Use case |
+|---|---|---|
+| `default` | `rounded-lg bg-primary text-primary-foreground` | Primary tag |
+| `secondary` | `rounded-lg bg-secondary text-secondary-foreground` | Neutral tag |
+| `destructive` | `rounded-lg bg-destructive text-destructive-foreground` | Warning / error tag (solid) |
+| `outline` | `rounded-lg border-border text-foreground` | Subtle bordered tag |
+
+### Icon variant (1)
+
+| Variant | Tailwind classes | Use case |
+|---|---|---|
+| `secondary-icon` | `rounded-lg bg-primary text-primary-foreground` | Tag with leading/trailing icon (e.g. ✓ Verified) |
+
+### Number variants (3) — rounded-full pill
+
+| Variant | Tailwind classes | Use case |
+|---|---|---|
+| `default-number` | `rounded-full bg-primary text-primary-foreground min-w-5` | Notification count |
+| `destructive-number` | `rounded-full bg-destructive text-destructive-foreground min-w-5` | Alert count |
+| `secondary-number` | `rounded-full border-border font-mono text-foreground min-w-5` | Outlined numeric (Geist Mono) |
+
+### Polymorphism
+
+Uses `useRender` from `@base-ui/react/use-render` — pass `render={<a href="…" />}` to make Badge an anchor with hover styles applied.
+
+### Removed (not in Figma)
+
+- ~~`ghost`~~ — was a custom addition, removed for Figma parity
+- ~~`link`~~ — was a custom addition, removed for Figma parity
 
 ---
 

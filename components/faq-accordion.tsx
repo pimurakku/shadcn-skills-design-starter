@@ -46,7 +46,7 @@ export function FaqAccordion({ items = defaultItems, defaultValue }: FaqAccordio
       {items.map((item, i) => (
         <AccordionItem key={i} value={`item-${i}`}>
           <AccordionTrigger className="text-left">{item.question}</AccordionTrigger>
-          <AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>
+          <AccordionContent>{item.answer}</AccordionContent>
         </AccordionItem>
       ))}
     </Accordion>

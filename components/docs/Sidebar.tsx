@@ -24,8 +24,9 @@ const navigation = [
   {
     title: "Components",
     items: [
-      { title: "Button", href: "/docs/components/button" },
+      { title: "Accordion", href: "/docs/components/accordion" },
       { title: "Badge", href: "/docs/components/badge" },
+      { title: "Button", href: "/docs/components/button" },
       { title: "Separator", href: "/docs/components/separator" },
     ],
   },
