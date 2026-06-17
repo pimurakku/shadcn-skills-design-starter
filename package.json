@@ -33,6 +33,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^5.2.1",
     "@storybook/addon-a11y": "^10.4.6",
     "@storybook/addon-docs": "^10.4.6",
     "@storybook/addon-themes": "^10.4.6",
@@ -45,6 +46,7 @@
     "@types/react-dom": "^19",
     "@vitest/browser": "^4.1.9",
     "@vitest/browser-playwright": "^4.1.9",
+    "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "playwright": "^1.61.0",
