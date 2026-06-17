@@ -29,6 +29,7 @@ const navigation = [
       { title: "Button", href: "/docs/components/button" },
       { title: "Dialog", href: "/docs/components/dialog" },
       { title: "Input", href: "/docs/components/input" },
+      { title: "Label", href: "/docs/components/label" },
       { title: "Separator", href: "/docs/components/separator" },
     ],
   },

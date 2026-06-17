@@ -32,7 +32,7 @@ Tracks parity between **Figma** source-of-truth components and the **code** impl
 | ThemeProvider | ✅ | _N/A_ | `components/theme-provider.tsx` | _N/A_ | next-themes wrapper. |
 | Card | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add card` |
 | Input | ✅ | `76:8518` | `components/ui/input.tsx` | ✅ | h-9 (36px), px-3 py-1, rounded-lg. Variants in Figma: Default, With Label, File, With Button, Disabled. All implemented via prop composition. |
-| Label | ✅ | _N/A_ | `components/ui/label.tsx` | _N/A_ | shadcn primitive — used with Input. |
+| Label | ✅ | _N/A_ | `components/ui/label.tsx` | _N/A_ | shadcn primitive — used with Input. Docs page added at `app/docs/components/label/`. |
 | Dialog | ✅ | `74:7828` | `components/ui/dialog.tsx` | ✅ | 2 Figma variants (Dialog + Custom_close_button). p-6, rounded-lg, shadow-lg, title text-lg font-semibold. |
 | AlertDialog | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add alert-dialog` |
 | Select | ❌ | _TBD_ | _Not installed_ | — | Pending: `npx shadcn@latest add select` |

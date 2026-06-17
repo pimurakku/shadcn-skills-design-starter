@@ -210,6 +210,41 @@ Composed component built on top of `Accordion`.
 
 ---
 
+## Label — `components/ui/label.tsx`
+
+No variants. A thin wrapper around the native `<label>` element.
+
+### Base styles
+
+| Class | Value | Purpose |
+|---|---|---|
+| `flex items-center gap-2` | — | Allows optional leading icon inside label |
+| `text-sm` | 14px | Matches form field font size |
+| `leading-none` | 1 | Tight line height for compact form rows |
+| `font-medium` | 500 | Distinguishes label from body text |
+| `select-none` | — | Prevents accidental selection on double-click |
+
+### Disabled state (CSS peer pattern)
+
+| Class | Trigger | Effect |
+|---|---|---|
+| `peer-disabled:opacity-50` | Paired input has `disabled` | Dims the label |
+| `peer-disabled:cursor-not-allowed` | Paired input has `disabled` | Changes cursor on hover |
+| `group-data-[disabled=true]:opacity-50` | Parent has `data-disabled="true"` | Dims via group context (for custom form groups) |
+
+> Label must appear **before** the form control in the DOM for `peer-disabled` to apply.
+
+### Usage patterns
+
+| Pattern | Code |
+|---|---|
+| With id/htmlFor | `<Label htmlFor="x">…</Label> + <Input id="x">` |
+| Wrapping | `<Label><Input /> Text</Label>` |
+| Grid stack | `<div className="grid gap-2"><Label/><Input/></div>` |
+| With icon | `<Label><User className="size-3.5" /> Email</Label>` |
+
+---
+
 ## ThemeToggle — `components/theme-toggle.tsx`
 
 No variants. Cycles `light` ↔ `dark` via `next-themes`. Renders a ghost `icon-sm` Button with Sun/Moon icons.
