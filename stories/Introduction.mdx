@@ -1,0 +1,133 @@
+{/* Introduction.mdx */}
+import { Meta } from "@storybook/blocks"
+
+<Meta title="Introduction" />
+
+# UI Component Library
+
+Design system built with **shadcn/ui + Tailwind CSS v4**, documented in Figma and implemented in Next.js.  
+Stories verify visual parity, interaction states, and accessibility in a single place.
+
+---
+
+## Quick start
+
+```bash
+npm run storybook      # dev server → localhost:6006
+npm run build-storybook  # export static HTML (ส่งให้ทีม QA ได้โดยไม่ต้องลง Node)
+```
+
+---
+
+## Sidebar structure
+
+| Section | เนื้อหา |
+|---|---|
+| **Tokens / Semantic Colors** | 35 CSS variables ที่ใช้ทั่วทั้ง app — เช็ค light/dark ได้เลย |
+| **Components / \*** | ทุก component มี ⚡ Playground + stories ย่อยตาม state |
+| **Docs** (แท็บบนสุด) | auto-generated API table + ตัวอย่าง code จาก story |
+
+---
+
+## Toolbar controls
+
+| ปุ่ม | หน้าที่ |
+|---|---|
+| **Light / Dark** | สลับ theme — ทดสอบ CSS variable ทั้ง 2 mode |
+| **Viewport** | เปลี่ยนขนาดหน้าจอ (Mobile S, Tablet, Desktop) |
+| **Background** | เปลี่ยน background ของ canvas |
+| **Outline** | แสดงขอบ layout box ทุกชิ้น |
+
+---
+
+## สำหรับทีม Dev
+
+### เพิ่ม story ใหม่
+
+```tsx
+// stories/MyComponent.stories.tsx
+import type { Meta, StoryObj } from "@storybook/react"
+import { MyComponent } from "@/components/ui/my-component"
+
+const meta = {
+  title: "Components/MyComponent",
+  component: MyComponent,
+  tags: ["autodocs"],
+} satisfies Meta<typeof MyComponent>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {
+  args: { label: "Click me" },
+}
+```
+
+### Path alias
+
+`@/` ชี้ไปที่ root ของโปรเจกต์ — ใช้ได้ใน stories เหมือนใน Next.js app
+
+```tsx
+import { Button } from "@/components/ui/button"   // ✅
+import { Button } from "../components/ui/button"   // ✅ (ก็ได้)
+```
+
+### Component ใหม่จาก shadcn
+
+```bash
+npx shadcn@latest add card   # ติดตั้ง component
+# แล้วสร้าง stories/Card.stories.tsx ตาม pattern เดิม
+```
+
+---
+
+## สำหรับทีม QA
+
+### Checklist ต่อ component
+
+เปิด story แต่ละอัน แล้วตรวจตาม checklist นี้:
+
+**1. Visual — ⚡ Playground**
+- [ ] ใช้ Controls panel เปลี่ยน `variant` / `size` / `disabled` ครบทุก option
+- [ ] toggle **Dark mode** — token ต้องพลิกทันที ไม่มีสีขาดหาย
+
+**2. States — "All States" story**
+- [ ] Default state แสดงถูกต้อง
+- [ ] Disabled — opacity 50%, คลิกไม่ได้
+- [ ] Loading (Button) — spinner หมุน, คลิกไม่ได้
+- [ ] Error / aria-invalid (Input) — border เปลี่ยนเป็น destructive
+
+**3. Accessibility — แท็บ A11y**
+- [ ] เปิดแท็บ **Accessibility** ด้านล่าง → ต้องไม่มี Violations
+- [ ] ทุก interactive element มี focus ring เมื่อ Tab
+- [ ] Icon-only buttons ต้องมี aria-label
+
+**4. Tokens — Tokens / Semantic Colors**
+- [ ] เปิด story **Component Tokens** → toggle Light/Dark → swatch ต้องพลิกทั้งหมด
+- [ ] ไม่มีสี hardcode (`#FFFFFF`, `bg-white`) ปนอยู่ใน component
+
+---
+
+## Component coverage
+
+| Component | Figma node | Stories | Docs page |
+|---|---|---|---|
+| Button | 402:654 | ✅ 7 stories | ✅ |
+| Badge | 73:3479 | ✅ 6 stories | ✅ |
+| Input | 76:8518 | ✅ 7 stories | ✅ |
+| Label | — | ✅ 4 stories | ✅ |
+| Separator | 76:10176 | ✅ 4 stories | ✅ |
+| Accordion | 73:3341 | ✅ 6 stories | ✅ |
+| Dialog | 74:7828 | ✅ 4 stories | ✅ |
+
+---
+
+## Semantic color tokens (35)
+
+ดูได้ที่ **Tokens → Semantic Colors** — แต่ละ token แสดง:
+- CSS variable (`--primary`)
+- Tailwind class (`bg-primary`)
+- Light hex + Dark hex
+- Live swatch ที่ตอบสนองต่อ toolbar toggle
+
+Token source: `app/globals.css` · Reference: `references/DESIGN.md §2`
